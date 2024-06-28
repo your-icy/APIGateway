@@ -1,0 +1,38 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: APiGateway
+  config:
+    import: configserver:http://localhost:9296
+  cloud:
+    gateway:
+      routes:
+        - id: OrderService
+          uri: lb://OrderService
+          predicates:
+            - Path=/order/**
+          filters:
+            - name: CircutBreaker
+              args:
+                name: OrderService
+                fallbackuri: forward:/orderServiceFallbackBack
+        - id: ProductService
+          uri: lb://ProductService
+          predicates:
+            - Path=/product/**
+          filters:
+            - name: CircutBreaker
+              args:
+                name: ProductService
+                fallbackuri: forward:/productServiceFallbackBack
+        - id: PaymentService
+          uri: lb://PaymentService
+          predicates:
+            - Path=/pay/**
+          filters:
+            - name: CircutBreaker
+              args:
+                name: PaymentService
+                fallbackuri: forward:/paymentServiceFallbackBack
